@@ -3,9 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalMessenger.Async", "RoyalMessenger.Async\RoyalMessenger.Async.csproj", "{0004B102-DA92-457C-A9AA-06511A45BF0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoyalMessenger", "RoyalMessenger\RoyalMessenger.csproj", "{0004B102-DA92-457C-A9AA-06511A45BF0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoyalMessenger.Sync", "RoyalMessenger.Sync\RoyalMessenger.Sync.csproj", "{3FED06C1-246D-47C2-AF85-D4A45BB634AD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4D04A252-194A-432D-A3BE-3A950757EA2C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +20,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0004B102-DA92-457C-A9AA-06511A45BF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -32,17 +34,11 @@ Global
 		{0004B102-DA92-457C-A9AA-06511A45BF0F}.Release|x64.Build.0 = Release|Any CPU
 		{0004B102-DA92-457C-A9AA-06511A45BF0F}.Release|x86.ActiveCfg = Release|Any CPU
 		{0004B102-DA92-457C-A9AA-06511A45BF0F}.Release|x86.Build.0 = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|x64.Build.0 = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Debug|x86.Build.0 = Debug|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|x64.ActiveCfg = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|x64.Build.0 = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|x86.ActiveCfg = Release|Any CPU
-		{3FED06C1-246D-47C2-AF85-D4A45BB634AD}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40A762E8-8DE5-4DA6-B198-FBF75127096E}
 	EndGlobalSection
 EndGlobal
