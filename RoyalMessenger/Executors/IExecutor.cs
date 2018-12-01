@@ -10,6 +10,6 @@ namespace RoyalMessenger.Executors
         /// <summary>Executes a set of handlers with a specified message.</summary>
         /// <param name="message">The message that was received.</param>
         /// <param name="handlers">The handlers that should be executed with the received message.</param>
-        Task ExecuteAsync(object message, IReadOnlyCollection<Func<object, Task>> handlers);
+        Task ExecuteAsync(object message, IReadOnlyCollection<MessageHandler> handlers);
     }
 }

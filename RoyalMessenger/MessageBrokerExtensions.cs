@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RoyalMessenger
@@ -18,7 +16,7 @@ namespace RoyalMessenger
         /// An object that represents this handler's registration. If this object is disposed or garbage collected,
         /// the handler will be unregistered and will no longer receive messages.
         /// </returns>
-        public static Task<IAsyncDisposable> RegisterAsync<T>(this IMessageBroker broker, Func<T, Task> handler)
+        public static Task<IAsyncDisposable> RegisterAsync<T>(this IMessageBroker broker, MessageHandler<T> handler)
         {
             return broker.RegisterAsync(typeof(T), obj =>
             {

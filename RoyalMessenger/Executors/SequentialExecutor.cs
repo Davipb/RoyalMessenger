@@ -28,7 +28,7 @@ namespace RoyalMessenger.Executors
             ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
         }
 
-        protected override async Task DoExecutionAsync(object message, IReadOnlyCollection<Func<object, Task>> handlers)
+        protected override async Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
             foreach (var handler in handlers)
             {

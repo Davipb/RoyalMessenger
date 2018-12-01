@@ -22,7 +22,7 @@ namespace RoyalMessenger.Executors
         /// <param name="isFireAndForget">Weather this executor is fire-and-forget or not.</param>
         protected FireAndForgetExecutor(bool isFireAndForget) => IsFireAndForget = isFireAndForget;
 
-        public Task ExecuteAsync(object message, IReadOnlyCollection<Func<object, Task>> handlers)
+        public Task ExecuteAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
             if (IsFireAndForget)
             {
@@ -40,6 +40,6 @@ namespace RoyalMessenger.Executors
         /// </summary>
         /// <param name="message">The message that was sent.</param>
         /// <param name="handlers">The handlers that must receive the message.</param>
-        protected abstract Task DoExecutionAsync(object message, IReadOnlyCollection<Func<object, Task>> handlers);
+        protected abstract Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers);
     }
 }

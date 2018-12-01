@@ -9,7 +9,7 @@ namespace RoyalMessenger.ExceptionHandlers
     /// </summary>
     public sealed class RethrowExceptionHandler : IExceptionHandler
     {
-        public Task HandleAsync(Exception exception, object message, Func<object, Task> handler)
+        public Task HandleAsync(Exception exception, object message, MessageHandler handler)
         {
             // Just using "throw exception" would cause the exception to lose all stack trace information
             // ExceptionDispatchInfo.Throw() will re-throw the exception while keeping the old stack trace

@@ -17,9 +17,9 @@ namespace RoyalMessenger
             /// <summary>The type of message this registration represents.</summary>
             public Type MessageType { get; }
             /// <summary>The message handler that this registration represents.</summary>
-            public Func<object, Task> MessageHandler { get; }
+            public MessageHandler MessageHandler { get; }
 
-            public Registration(BasicMessageBroker broker, Type messageType, Func<object, Task> messageHandler)
+            public Registration(BasicMessageBroker broker, Type messageType, MessageHandler messageHandler)
             {
                 this.broker = broker;
                 MessageType = messageType;
@@ -35,12 +35,9 @@ namespace RoyalMessenger
 
         /// <summary>Creates a new <see cref="BasicMessageBroker"/> with the specified <see cref="IExecutor"/>.</summary>
         /// <param name="executor">The executor that will be used to execute message handlers in this broker.</param>
-        public BasicMessageBroker(IExecutor executor)
-        {
-            this.executor = executor ?? throw new ArgumentNullException(nameof(executor));
-        }
+        public BasicMessageBroker(IExecutor executor) => this.executor = executor ?? throw new ArgumentNullException(nameof(executor));
 
-        public async Task<IAsyncDisposable> RegisterAsync(Type messageType, Func<object, Task> messageHandler)
+        public async Task<IAsyncDisposable> RegisterAsync(Type messageType, MessageHandler messageHandler)
         {
             var registration = new Registration(this, messageType, messageHandler);
             await items.AddAsync(messageType, registration).ConfigureAwait(false);
@@ -59,7 +56,8 @@ namespace RoyalMessenger
             // inside the handlers' execution without affecting the executor
             var handlers = registrations.Select(r => r.MessageHandler).ToList().AsReadOnly();
 
-            await executor.ExecuteAsync(message, handlers).ConfigureAwait(false);
+            if (handlers.Count > 0)
+                await executor.ExecuteAsync(message, handlers).ConfigureAwait(false);
         }
     }
 }

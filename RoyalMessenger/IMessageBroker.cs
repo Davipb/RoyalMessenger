@@ -15,7 +15,7 @@ namespace RoyalMessenger
         /// An object that represents this handler's registration. If this object is disposed or garbage collected,
         /// the handler will be unregistered and will no longer receive messages.
         /// </returns>
-        Task<IAsyncDisposable> RegisterAsync(Type messageType, Func<object, Task> messageHandler);
+        Task<IAsyncDisposable> RegisterAsync(Type messageType, MessageHandler messageHandler);
 
         /// <summary>Sends a message.</summary>
         /// <param name="message">The message to send.</param>
