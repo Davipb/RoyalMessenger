@@ -12,22 +12,14 @@ namespace RoyalMessenger
     internal sealed class WeakMultiValueDictionary<TKey, TItem> where TItem : class
     {
         private readonly IDictionary<TKey, ICollection<WeakReference<TItem>>> items = new Dictionary<TKey, ICollection<WeakReference<TItem>>>();
-        private readonly AsyncReaderWriterLock itemsLock = new AsyncReaderWriterLock();
-
-        /// <summary>Removes all garbage-collected references from a collection.</summary>
-        /// <param name="references">The collection to purge.</param>
-        private static void Purge(ICollection<WeakReference<TItem>> references)
-        {
-            var toRemove = references.Where(r => !r.TryGetTarget(out _)).ToList();
-            foreach (var item in toRemove) references.Remove(item);
-        }
+        private readonly AsyncLock itemsLock = new AsyncLock();
 
         /// <summary>Adds a new item to this dictionary.</summary>
         /// <param name="key">The key of the item.</param>
         /// <param name="item">The item to add.</param>
         public async Task AddAsync(TKey key, TItem item)
         {
-            using (await itemsLock.WriterLockAsync().ConfigureAwait(false))
+            using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
                 if (!items.ContainsKey(key))
                     items[key] = new List<WeakReference<TItem>>();
@@ -41,7 +33,7 @@ namespace RoyalMessenger
         /// <param name="item">The item to remove.</param>
         public async Task RemoveAsync(TKey key, TItem item)
         {
-            using (await itemsLock.WriterLockAsync().ConfigureAwait(false))
+            using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
                 if (!items.TryGetValue(key, out var values)) return;
 
@@ -52,23 +44,65 @@ namespace RoyalMessenger
             }
         }
 
-        /// <summary>Gets all values associated with a key that haven't been garbage-collected yet.</summary>
-        /// <param name="key">The key to get the values of.</param>
-        /// <returns>All items associated with the specified key that haven't been garbage-collected yet.</returns>
+        /// <summary>
+        /// Gets all valid items stored for a certain key, while also removing garbage-collected items.
+        /// This method does not lock the dictionary and modifies it, so care must be taken to both
+        /// lock the dictionary and make a copy of any LINQ iterators before calling this.
+        /// </summary>
+        /// <param name="key">The key to get the items for.</param>
+        /// <returns>
+        /// The valid non-garbage-collected items of the specified key,
+        /// or an empty collection if the key is not in the dictionary.
+        /// </returns>
+        private IReadOnlyCollection<TItem> GetPurged(TKey key)
+        {
+            if (!items.TryGetValue(key, out var references))
+                return Array.Empty<TItem>();
+
+            var result = new List<TItem>();
+            var toRemove = new List<WeakReference<TItem>>();
+            foreach (var reference in references)
+            {
+                if (reference.TryGetTarget(out var item))
+                    result.Add(item);
+                else
+                    toRemove.Add(reference);
+            }
+
+            foreach (var item in toRemove)
+                references.Remove(item);
+
+            if (references.Count == 0)
+                items.Remove(key);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets all items associated with a certain key.
+        /// This should be used in favor of <see cref="GetMatchingAsync(Func{TKey, bool})"/> when the key is
+        /// singular and known, as accessing a known key is faster than checking every key in the dictionary.
+        /// </summary>
+        /// <param name="key">The key to get the items of.</param>
+        /// <returns>All valid, non-garbage-collected items stored for the specified key.</returns>
         public async Task<IReadOnlyCollection<TItem>> GetAsync(TKey key)
         {
-            using (await itemsLock.ReaderLockAsync().ConfigureAwait(false))
+            using (await itemsLock.LockAsync().ConfigureAwait(false))
+                return GetPurged(key);
+        }
+
+        /// <summary>Gets all non-garbage-collected items associated with keys that match a certain predicate.</summary>
+        /// <param name="predicate">The predicate that determines if the items of a key should be returned.</param>
+        /// <returns>All non-garbage-collected items associated with the keys that match the specified predicate.</returns>
+        public async Task<IReadOnlyCollection<TItem>> GetMatchingAsync(Func<TKey, bool> predicate)
+        {
+            using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
-                if (!items.TryGetValue(key, out var values))
-                    return Array.Empty<TItem>();
-
-                Purge(values);
-
-                return values
-                    .Select(r => r.GetOrNull())
-                    .Where(v => v != null)
-                    .ToList()
-                    .AsReadOnly();
+                return items.Keys
+                    .Where(predicate)
+                    .ToList() // The GetPurged method modifies the dictionary, use a ToList copy to avoid invalidating our iterator
+                    .SelectMany(GetPurged)
+                    .ToList();
             }
         }
     }

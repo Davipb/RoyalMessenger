@@ -1,5 +1,7 @@
 using Moq;
 using RoyalMessenger.Executors;
+using RoyalMessenger.MessageDiscriminators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +9,7 @@ using Xunit;
 
 namespace RoyalMessenger.Tests
 {
-    public class BasicMessageBrokerTests
+    public class StandardMessageBrokerTests
     {
         /// <summary>Represents a request received by an <see cref="IExecutor"/>.</summary>
         private class ExecutionRequest
@@ -41,6 +43,7 @@ namespace RoyalMessenger.Tests
 
         private class Message1 { }
         private class Message2 { }
+        private class Message3 { }
 
         /// <summary>Creates a message handler that does nothing.</summary>
         private static MessageHandler CreateDummyHandler() => _ => Task.CompletedTask;
@@ -62,7 +65,7 @@ namespace RoyalMessenger.Tests
         {
             var handler = CreateDummyHandler();
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
 
             var registration = await broker.RegisterAsync(typeof(Message1), handler);
             await broker.SendAsync(new Message1());
@@ -76,7 +79,7 @@ namespace RoyalMessenger.Tests
         {
             var handler = CreateDummyHandler();
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
 
             var registration = await broker.RegisterAsync(typeof(Message1), handler);
             await broker.SendAsync(new Message2());
@@ -90,7 +93,7 @@ namespace RoyalMessenger.Tests
             var handlers = CreateDummyHandlers(3);
 
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
             var registrations = new List<IAsyncDisposable>();
             foreach (var handler in handlers)
                 registrations.Add(await broker.RegisterAsync(typeof(Message1), handler));
@@ -108,7 +111,7 @@ namespace RoyalMessenger.Tests
             var ignored = CreateDummyHandlers(3);
 
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
             var registrations = new List<IAsyncDisposable>();
 
             foreach (var handler in expected)
@@ -128,7 +131,7 @@ namespace RoyalMessenger.Tests
         {
             var handler = CreateDummyHandler();
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
 
             var registration = await broker.RegisterAsync(typeof(Message1), handler);
             await registration.DisposeAsync();
@@ -142,13 +145,38 @@ namespace RoyalMessenger.Tests
         {
             var handler = CreateDummyHandler();
             var executor = new Executor();
-            var broker = new BasicMessageBroker(executor);
+            var broker = new StandardMessageBroker(executor);
 
             await broker.RegisterAsync(typeof(Message1), handler);
             await TestHelper.ForceGarbageCollectionAsync();
             await broker.SendAsync(new Message1());
 
             Assert.Empty(executor.Requests);
+        }
+
+        [Fact]
+        public async Task Send_ObeysMessageDiscriminator()
+        {
+            var discriminator = Mocks.Create<IMessageDiscriminator>();
+            discriminator.Setup(d => d.IsCompatible(typeof(Message1), It.IsAny<Type>())).Returns(true);
+            discriminator.Setup(d => d.IsCompatible(typeof(Message2), It.IsAny<Type>())).Returns(false);
+            discriminator.Setup(d => d.IsCompatible(typeof(Message3), It.IsAny<Type>())).Returns((Type a, Type b) => a == b);
+
+            var handlers = CreateDummyHandlers(3);
+            var executor = new Executor();
+            var broker = new StandardMessageBroker(executor, discriminator.Object);
+
+            await broker.RegisterAsync(typeof(Message1), handlers[0]);
+            await broker.RegisterAsync(typeof(Message2), handlers[1]);
+            await broker.RegisterAsync(typeof(Message3), handlers[2]);
+
+            await broker.SendAsync(new Message1());
+            await broker.SendAsync(new Message2());
+            await broker.SendAsync(new Message3());
+
+            Assert.Equal(2, executor.Requests.Count);
+            TestHelper.AssertEquivalent(handlers, executor.Requests[0].Handlers);
+            Assert.Single(executor.Requests[1].Handlers, handlers[2]);
         }
 
     }

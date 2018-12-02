@@ -1,4 +1,6 @@
+using NullGuard;
 using RoyalMessenger.Executors;
+using RoyalMessenger.MessageDiscriminators;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,20 +8,20 @@ using System.Threading.Tasks;
 namespace RoyalMessenger
 {
     /// <summary>An asynchronous message broker that stores its data in-memory.</summary>
-    public sealed class BasicMessageBroker : IMessageBroker
+    public sealed class StandardMessageBroker : IMessageBroker
     {
         /// <summary>Represents a handler registration for this broker.</summary>
         private sealed class Registration : IAsyncDisposable
         {
             /// <summary>The broker that created this registration.</summary>
-            private readonly BasicMessageBroker broker;
+            private readonly StandardMessageBroker broker;
 
             /// <summary>The type of message this registration represents.</summary>
             public Type MessageType { get; }
             /// <summary>The message handler that this registration represents.</summary>
             public MessageHandler MessageHandler { get; }
 
-            public Registration(BasicMessageBroker broker, Type messageType, MessageHandler messageHandler)
+            public Registration(StandardMessageBroker broker, Type messageType, MessageHandler messageHandler)
             {
                 this.broker = broker;
                 MessageType = messageType;
@@ -32,10 +34,24 @@ namespace RoyalMessenger
 
         private readonly WeakMultiValueDictionary<Type, Registration> items = new WeakMultiValueDictionary<Type, Registration>();
         private readonly IExecutor executor;
+        private readonly IMessageDiscriminator discriminator;
 
-        /// <summary>Creates a new <see cref="BasicMessageBroker"/> with the specified <see cref="IExecutor"/>.</summary>
-        /// <param name="executor">The executor that will be used to execute message handlers in this broker.</param>
-        public BasicMessageBroker(IExecutor executor) => this.executor = executor ?? throw new ArgumentNullException(nameof(executor));
+        /// <summary>Creates a new <see cref="StandardMessageBroker"/> with the specified <see cref="IExecutor"/>.</summary>
+        /// <param name="executor">
+        /// The executor that will be used to execute message handlers in this broker.
+        /// If left <see langword="null"/>, it defaults to <see cref="SequentialExecutor"/>.
+        /// </param>
+        /// <param name="discriminator">
+        /// The discriminator used to decide which messages should be delivered to which handlers.
+        /// If left <see langword="null"/>, it defaults to <see cref="AssignableTypeMessageDiscriminator"/>.
+        /// </param>
+        public StandardMessageBroker(
+            [AllowNull] IExecutor executor = null,
+            [AllowNull] IMessageDiscriminator discriminator = null)
+        {
+            this.executor = executor ?? new SequentialExecutor();
+            this.discriminator = discriminator ?? new AssignableTypeMessageDiscriminator();
+        }
 
         public async Task<IAsyncDisposable> RegisterAsync(Type messageType, MessageHandler messageHandler)
         {
@@ -50,7 +66,9 @@ namespace RoyalMessenger
 
         public async Task SendAsync(object message)
         {
-            var registrations = await items.GetAsync(message.GetType()).ConfigureAwait(false);
+            var registrations = await items
+                .GetMatchingAsync(k => discriminator.IsCompatible(message.GetType(), k))
+                .ConfigureAwait(false);
 
             // Copy the handlers to make sure additional registrations and unregistrations can occur
             // inside the handlers' execution without affecting the executor
