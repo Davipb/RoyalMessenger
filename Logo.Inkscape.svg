@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100"
+   height="100"
+   viewBox="0 0 26.458332 26.458334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="Logo.Inkscape.svg"
+   inkscape:export-filename="Logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <title
+     id="title834">Royal Messenger Logo</title>
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="34.481964"
+     inkscape:cy="44.114834"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:pagecheckerboard="true"
+     inkscape:showpageshadow="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Royal Messenger Logo</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-270.54165)">
+    <path
+       id="path812"
+       d="m 9.2013179,278.32325 -1.1508116,-6.65024 3.1647367,4.23198 2.013926,-4.23198 2.013922,4.23198 3.164736,-4.23198 -1.150813,6.65024 H 9.2013179 m 8.0556961,1.81372 a 0.5754068,0.60456912 0 0 1 -0.575405,0.60457 H 9.7767275 a 0.5754068,0.60456912 0 0 1 -0.5754096,-0.60457 v -0.60457 h 8.0556961 z"
+       inkscape:connector-curvature="0"
+       style="stroke-width:0.58980769" />
+    <path
+       id="path823"
+       d="m 20.032365,285.66382 -6.803199,4.25199 -6.8031981,-4.25199 v -1.7008 l 6.8031981,4.252 6.803199,-4.252 m 0,-1.70082 H 6.4259679 c -0.9439469,0 -1.7008018,0.75687 -1.7008018,1.70082 v 10.20479 a 1.7008001,1.7008001 0 0 0 1.7008018,1.70082 H 20.032365 a 1.7008001,1.7008001 0 0 0 1.700802,-1.70082 v -10.20479 c 0,-0.94395 -0.765362,-1.70082 -1.700802,-1.70082 z"
+       inkscape:connector-curvature="0"
+       style="fill:#000000;fill-opacity:1;stroke-width:0.85040009" />
+  </g>
+</svg>
