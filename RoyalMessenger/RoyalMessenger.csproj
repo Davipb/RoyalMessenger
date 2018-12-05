@@ -5,7 +5,7 @@
         <LangVersion>latest</LangVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>        
         <NeutralLanguage>en-US</NeutralLanguage>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>        
     </PropertyGroup>
 
     <PropertyGroup Label="NuGet">
@@ -14,13 +14,17 @@
         <Authors>Davipb</Authors>
         <PackageTags>messaging message broker async</PackageTags>
         <Description>Adaptible &amp; decoupled message broker</Description>
+        <PackageReleaseNotes>First ever release</PackageReleaseNotes>
+        <NeutralLanguage>en-US</NeutralLanguage>
         <Copyright>Copyright © Davipb 2018</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/Davipb/RoyalMessenger</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/Davipb/RoyalMessenger/master/Logo.png</PackageIconUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>

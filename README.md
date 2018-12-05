@@ -2,6 +2,9 @@
 
 ## Adaptible & decoupled message broker
 
+[![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/RoyalMessenger.svg)](https://www.nuget.org/packages/RoyalMessenger/1.0.0)
+![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)
+
 ## What it does
 **Royal Messenger** is a library that lets different parts of your system communicate without having to
 reference one another directly.
