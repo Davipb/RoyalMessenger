@@ -1,4 +1,4 @@
-using System;
+using RoyalMessenger.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,6 +9,8 @@ namespace RoyalMessenger.Executors
     /// </summary>
     public abstract class FireAndForgetExecutor : IExecutor
     {
+        private static readonly Logger Log = new Logger(typeof(FireAndForgetExecutor));
+
         /// <summary>
         /// Weather this executor is a fire-and-forget runner or not.
         /// Fire-and-Forget runners start executing their handlers and immediately return control to the calling code
@@ -24,8 +26,11 @@ namespace RoyalMessenger.Executors
 
         public Task ExecuteAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
+            Log.Trace($"Received {handlers.Count} handlers for a message {message}");
+
             if (IsFireAndForget)
             {
+                Log.Debug($"Fire and Forget mode is set, running {handlers.Count} handlers in a background task");
                 Task.Run(() => DoExecutionAsync(message, handlers));
                 return Task.CompletedTask;
             }

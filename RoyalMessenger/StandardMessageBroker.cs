@@ -1,5 +1,6 @@
 using NullGuard;
 using RoyalMessenger.Executors;
+using RoyalMessenger.Logging;
 using RoyalMessenger.MessageDiscriminators;
 using System;
 using System.Linq;
@@ -10,9 +11,13 @@ namespace RoyalMessenger
     /// <summary>An asynchronous message broker that stores its data in-memory.</summary>
     public sealed class StandardMessageBroker : IMessageBroker
     {
+        private static readonly Logger Log = new Logger(typeof(StandardMessageBroker));
+
         /// <summary>Represents a handler registration for this broker.</summary>
         private sealed class Registration : IAsyncDisposable
         {
+            private static readonly Logger Log = new Logger(typeof(Registration));
+
             /// <summary>The broker that created this registration.</summary>
             private readonly StandardMessageBroker broker;
 
@@ -29,7 +34,13 @@ namespace RoyalMessenger
             }
 
             /// <summary>Unregisters this registration from the broker that created it.</summary>
-            public Task DisposeAsync() => broker.UnregisterAsync(this);
+            public Task DisposeAsync()
+            {
+                Log.Trace($"Handler {MessageHandler} was manually unregistered from {MessageType} at {broker}");
+                return broker.UnregisterAsync(this);
+            }
+
+            public override string ToString() => $"Handler {MessageHandler} for {MessageType} at {broker}";
         }
 
         private readonly WeakMultiValueDictionary<Type, Registration> items = new WeakMultiValueDictionary<Type, Registration>();
@@ -55,6 +66,7 @@ namespace RoyalMessenger
 
         public async Task<IAsyncDisposable> RegisterAsync(Type messageType, MessageHandler messageHandler)
         {
+            Log.Trace($"Registering a new handler for {messageType}");
             var registration = new Registration(this, messageType, messageHandler);
             await items.AddAsync(messageType, registration).ConfigureAwait(false);
             return registration;
@@ -62,7 +74,11 @@ namespace RoyalMessenger
 
         /// <summary>Unregisters a given registration, ensuring that its handler won't receive messages anymore.</summary>
         /// <param name="registration">The registration to unregister.</param>
-        private Task UnregisterAsync(Registration registration) => items.RemoveAsync(registration.MessageType, registration);
+        private Task UnregisterAsync(Registration registration)
+        {
+            Log.Trace($"Manually unregistering {registration}");
+            return items.RemoveAsync(registration.MessageType, registration);
+        }
 
         public async Task SendAsync(object message)
         {
@@ -75,7 +91,14 @@ namespace RoyalMessenger
             var handlers = registrations.Select(r => r.MessageHandler).ToList().AsReadOnly();
 
             if (handlers.Count > 0)
+            {
+                Log.Info($"Broadcasting {message} to {handlers.Count} handlers using {executor}");
                 await executor.ExecuteAsync(message, handlers).ConfigureAwait(false);
+            }
+            else
+            {
+                Log.Debug($"{message} has no handlers, ignoring");
+            }
         }
     }
 }

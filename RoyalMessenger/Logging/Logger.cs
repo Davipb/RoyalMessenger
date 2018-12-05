@@ -35,5 +35,7 @@ namespace RoyalMessenger.Logging
         /// <param name="e">The exception that caused this error.</param>
         /// <param name="message">The message to log.</param>
         internal void Error(Exception e, FormattableString message) => Binding.Log(Type, LogLevel.Error, message, e);
+
+        public Logger(Type type) => Type = type;
     }
 }

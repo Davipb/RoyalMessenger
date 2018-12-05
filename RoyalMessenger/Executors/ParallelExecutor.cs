@@ -1,8 +1,8 @@
 using NullGuard;
 using RoyalMessenger.ExceptionHandlers;
+using RoyalMessenger.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RoyalMessenger.Executors
@@ -10,6 +10,8 @@ namespace RoyalMessenger.Executors
     /// <summary>An <see cref="IExecutor"/> that executes message handlers in parallel with each other.</summary>
     public class ParallelExecutor : FireAndForgetExecutor
     {
+        private static readonly Logger Log = new Logger(typeof(FireAndForgetExecutor));
+
         /// <summary>The handler used to handle exceptions thrown by message handlers.</summary>
         public IExceptionHandler ExceptionHandler { get; }
 
@@ -19,10 +21,7 @@ namespace RoyalMessenger.Executors
         public ParallelExecutor(
             bool isFireAndForget = false,
             [AllowNull] IExceptionHandler exceptionHandler = null
-        ) : base(isFireAndForget)
-        {
-            ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
-        }
+        ) : base(isFireAndForget) => ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
 
         protected override Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
@@ -36,6 +35,7 @@ namespace RoyalMessenger.Executors
                     try { await handler(message).ConfigureAwait(false); }
                     catch (Exception e)
                     {
+                        Log.Error(e, $"A handler for {message} threw an {e.GetType().FullName}, delegating to {ExceptionHandler}");
                         await ExceptionHandler.HandleAsync(e, message, handler).ConfigureAwait(false);
                     }
                 }));

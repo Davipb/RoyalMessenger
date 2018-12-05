@@ -1,5 +1,6 @@
 using NullGuard;
 using RoyalMessenger.ExceptionHandlers;
+using RoyalMessenger.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace RoyalMessenger.Executors
     /// <summary>An <see cref="IExecutor"/> that executes all message handlers one at a time, sequentially.</summary>
     public sealed class SequentialExecutor : FireAndForgetExecutor
     {
+        private static readonly Logger Log = new Logger(typeof(SequentialExecutor));
+
         /// <summary>The policy that thise executor will follow when handling exceptions.</summary>
         public SequentialExceptionPolicy ExceptionPolicy { get; }
         /// <summary>The handler used to handle exceptions thrown by message handlers.</summary>
@@ -33,12 +36,20 @@ namespace RoyalMessenger.Executors
             foreach (var handler in handlers)
             {
                 try { await handler(message).ConfigureAwait(false); }
-                catch (Exception messageException)
+                catch (Exception e)
                 {
-                    await ExceptionHandler.HandleAsync(messageException, message, handler).ConfigureAwait(false);
+                    Log.Error(e, $"A handler for {message} threw an {e.GetType().FullName}, delegating to {ExceptionHandler}");
+                    await ExceptionHandler.HandleAsync(e, message, handler).ConfigureAwait(false);
 
                     if (ExceptionPolicy == SequentialExceptionPolicy.Stop)
+                    {
+                        Log.Debug($"Exception policy is set to Stop, aborting execution of handlers");
                         break;
+                    }
+                    else
+                    {
+                        Log.Trace($"Exception policy is set to Continue, finishing execution of handlers after an exception");
+                    }
                 }
             }
         }

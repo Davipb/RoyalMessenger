@@ -1,4 +1,5 @@
 using Nito.AsyncEx;
+using RoyalMessenger.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace RoyalMessenger
     /// <typeparam name="TItem">The type of the item.</typeparam>
     internal sealed class WeakMultiValueDictionary<TKey, TItem> where TItem : class
     {
+        private static readonly Logger Log = new Logger(typeof(WeakMultiValueDictionary<,>));
+
         private readonly IDictionary<TKey, ICollection<WeakReference<TItem>>> items = new Dictionary<TKey, ICollection<WeakReference<TItem>>>();
         private readonly AsyncLock itemsLock = new AsyncLock();
 
@@ -72,8 +75,14 @@ namespace RoyalMessenger
             foreach (var item in toRemove)
                 references.Remove(item);
 
+            if (toRemove.Count > 0)
+                Log.Info($"Purged {toRemove.Count} garbage-collected references from {key}");
+
             if (references.Count == 0)
+            {
+                Log.Trace($"{key} has no items left, removing it entirely");
                 items.Remove(key);
+            }
 
             return result;
         }

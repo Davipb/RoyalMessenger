@@ -1,3 +1,4 @@
+using RoyalMessenger.Logging;
 using System;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
@@ -9,8 +10,12 @@ namespace RoyalMessenger.ExceptionHandlers
     /// </summary>
     public sealed class RethrowExceptionHandler : IExceptionHandler
     {
+        private static readonly Logger Log = new Logger(typeof(RethrowExceptionHandler));
+
         public Task HandleAsync(Exception exception, object message, MessageHandler handler)
         {
+            Log.Debug($"Re-throwing {exception}");
+
             // Just using "throw exception" would cause the exception to lose all stack trace information
             // ExceptionDispatchInfo.Throw() will re-throw the exception while keeping the old stack trace
             ExceptionDispatchInfo.Capture(exception).Throw();
