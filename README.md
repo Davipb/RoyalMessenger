@@ -9,7 +9,7 @@ Anyone can send a message, anyone can receive a message, and once a component go
 garbage-collected, it automatically stops receiving messages, without the senders having to ever know that 
 happened.
 
-# How to use it
+## How to use it
 ```csharp
 // Create a new Message Broker
 var broker = new StandardMessageBroker();
