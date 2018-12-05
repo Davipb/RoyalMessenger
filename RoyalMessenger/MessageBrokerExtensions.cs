@@ -18,6 +18,9 @@ namespace RoyalMessenger
         /// </returns>
         public static Task<IAsyncDisposable> RegisterAsync<T>(this IMessageBroker broker, MessageHandler<T> handler)
         {
+            if (broker is null) throw new ArgumentNullException(nameof(broker));
+            if (handler is null) throw new ArgumentNullException(nameof(handler));
+
             return broker.RegisterAsync(typeof(T), obj =>
             {
                 if (!(obj is T message))

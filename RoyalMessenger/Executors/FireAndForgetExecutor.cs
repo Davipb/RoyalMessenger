@@ -1,4 +1,5 @@
 using RoyalMessenger.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -26,6 +27,9 @@ namespace RoyalMessenger.Executors
 
         public Task ExecuteAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
+            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (handlers is null) throw new ArgumentNullException(nameof(handlers));
+
             Log.Trace($"Received {handlers.Count} handlers for a message {message}");
 
             if (IsFireAndForget)

@@ -1,4 +1,4 @@
-using NullGuard;
+using RoyalMessenger.Contracts;
 using RoyalMessenger.ExceptionHandlers;
 using RoyalMessenger.Logging;
 using System;
@@ -18,13 +18,14 @@ namespace RoyalMessenger.Executors
         /// <summary>Creates a new <see cref="SequentialExecutor" />.</summary>
         /// <param name="isFireAndForget">Weather this executor will be fire-and-forget or not. Defaults to <see langword="false" />.</param>
         /// <param name="exceptionHandler">The exception handler used by this executor. If <see langword="null"/>, it will be set to <see cref="RethrowExceptionHandler"/>.</param>
-        public ParallelExecutor(
-            bool isFireAndForget = false,
-            [AllowNull] IExceptionHandler exceptionHandler = null
-        ) : base(isFireAndForget) => ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
+        public ParallelExecutor(bool isFireAndForget = false, [Nullable] IExceptionHandler exceptionHandler = null) : base(isFireAndForget)
+            => ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
 
         protected override Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
+            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (handlers is null) throw new ArgumentNullException(nameof(handlers));
+
             var tasks = new List<Task>();
             foreach (var handler in handlers)
             {

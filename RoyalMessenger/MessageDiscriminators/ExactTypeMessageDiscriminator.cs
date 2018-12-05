@@ -11,6 +11,12 @@ namespace RoyalMessenger.MessageDiscriminators
     /// </summary>
     public class ExactTypeMessageDiscriminator : IMessageDiscriminator
     {
-        public bool IsCompatible(Type messageType, Type registeredType) => messageType == registeredType;
+        public bool IsCompatible(Type messageType, Type registeredType)
+        {
+            if (messageType is null) throw new ArgumentNullException(nameof(messageType));
+            if (registeredType is null) throw new ArgumentNullException(nameof(registeredType));
+
+            return messageType == registeredType;
+        }
     }
 }

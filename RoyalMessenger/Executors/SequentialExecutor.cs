@@ -1,4 +1,4 @@
-using NullGuard;
+using RoyalMessenger.Contracts;
 using RoyalMessenger.ExceptionHandlers;
 using RoyalMessenger.Logging;
 using System;
@@ -24,7 +24,7 @@ namespace RoyalMessenger.Executors
         public SequentialExecutor(
             bool isFireAndForget = false,
             SequentialExceptionPolicy exceptionPolicy = SequentialExceptionPolicy.Continue,
-            [AllowNull] IExceptionHandler exceptionHandler = null
+            [Nullable] IExceptionHandler exceptionHandler = null
         ) : base(isFireAndForget)
         {
             ExceptionPolicy = exceptionPolicy;
@@ -33,6 +33,9 @@ namespace RoyalMessenger.Executors
 
         protected override async Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
+            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (handlers is null) throw new ArgumentNullException(nameof(handlers));
+
             foreach (var handler in handlers)
             {
                 try { await handler(message).ConfigureAwait(false); }

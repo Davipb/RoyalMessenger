@@ -1,4 +1,5 @@
 using Nito.AsyncEx;
+using RoyalMessenger.Contracts;
 using RoyalMessenger.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,10 @@ namespace RoyalMessenger
         /// <summary>Adds a new item to this dictionary.</summary>
         /// <param name="key">The key of the item.</param>
         /// <param name="item">The item to add.</param>
-        public async Task AddAsync(TKey key, TItem item)
+        public async Task AddAsync([Nullable] TKey key, TItem item)
         {
+            if (item is null) throw new ArgumentNullException(nameof(item));
+
             using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
                 if (!items.ContainsKey(key))
@@ -34,8 +37,10 @@ namespace RoyalMessenger
         /// <summary>Removes an item from this dictionary. If the item is not in the dictionary, this does nothing.</summary>
         /// <param name="key">The key of the item.</param>
         /// <param name="item">The item to remove.</param>
-        public async Task RemoveAsync(TKey key, TItem item)
+        public async Task RemoveAsync([Nullable] TKey key, TItem item)
         {
+            if (item is null) throw new ArgumentNullException(nameof(item));
+
             using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
                 if (!items.TryGetValue(key, out var values)) return;
@@ -57,7 +62,7 @@ namespace RoyalMessenger
         /// The valid non-garbage-collected items of the specified key,
         /// or an empty collection if the key is not in the dictionary.
         /// </returns>
-        private IReadOnlyCollection<TItem> GetPurged(TKey key)
+        private IReadOnlyCollection<TItem> GetPurged([Nullable] TKey key)
         {
             if (!items.TryGetValue(key, out var references))
                 return Array.Empty<TItem>();
@@ -94,7 +99,7 @@ namespace RoyalMessenger
         /// </summary>
         /// <param name="key">The key to get the items of.</param>
         /// <returns>All valid, non-garbage-collected items stored for the specified key.</returns>
-        public async Task<IReadOnlyCollection<TItem>> GetAsync(TKey key)
+        public async Task<IReadOnlyCollection<TItem>> GetAsync([Nullable] TKey key)
         {
             using (await itemsLock.LockAsync().ConfigureAwait(false))
                 return GetPurged(key);
@@ -105,6 +110,8 @@ namespace RoyalMessenger
         /// <returns>All non-garbage-collected items associated with the keys that match the specified predicate.</returns>
         public async Task<IReadOnlyCollection<TItem>> GetMatchingAsync(Func<TKey, bool> predicate)
         {
+            if (predicate is null) throw new ArgumentNullException(nameof(predicate));
+
             using (await itemsLock.LockAsync().ConfigureAwait(false))
             {
                 return items.Keys

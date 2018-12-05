@@ -1,4 +1,4 @@
-using NullGuard;
+using RoyalMessenger.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +18,12 @@ namespace RoyalMessenger
         {
             public Type Type { get; }
             public MessageHandler Handler { get; }
-            [AllowNull] public IAsyncDisposable Registration { get; set; }
+            [Nullable] public IAsyncDisposable Registration { get; set; }
 
             public Entry(Type type, MessageHandler handler)
             {
-                Type = type;
-                Handler = handler;
+                Type = type ?? throw new ArgumentNullException(nameof(type));
+                Handler = handler ?? throw new ArgumentNullException(nameof(handler));
             }
         }
 
@@ -32,7 +32,7 @@ namespace RoyalMessenger
 
         /// <summary>Creates a new Registration set.</summary>
         /// <param name="broker">The <see cref="IMessageBroker"/> that this set wraps.</param>
-        public RegistrationSet(IMessageBroker broker) => Broker = broker;
+        public RegistrationSet(IMessageBroker broker) => Broker = broker ?? throw new ArgumentNullException(nameof(broker));
 
 
         /// <summary>Adds a new handler to this set. The handler won't be registered until <see cref="RegisterAsync"/> is called.</summary>
@@ -40,13 +40,17 @@ namespace RoyalMessenger
         /// <param name="handler">The handler to be added.</param>
         /// <returns>This instance, for chaining.</returns>
         public RegistrationSet Add<T>(MessageHandler<T> handler)
-            => Add(typeof(T), obj =>
-                {
-                    if (obj is T t)
-                        return handler(t);
+        {
+            if (handler is null) throw new ArgumentNullException(nameof(handler));
 
-                    throw new ArgumentException($"Expected a {typeof(T).Name}, got a {obj.GetType().Name} instead");
-                });
+            return Add(typeof(T), obj =>
+            {
+                if (obj is T t)
+                    return handler(t);
+
+                throw new ArgumentException($"Expected a {typeof(T).Name}, got a {obj.GetType().Name} instead");
+            });
+        }
 
 
         /// <summary>Adds a new handler to this set. The handler won't be registered until <see cref="RegisterAsync"/> is called.</summary>
@@ -55,6 +59,9 @@ namespace RoyalMessenger
         /// <returns>This instance, for chaining.</returns>
         public RegistrationSet Add(Type type, MessageHandler handler)
         {
+            if (type is null) throw new ArgumentNullException(nameof(type));
+            if (handler is null) throw new ArgumentNullException(nameof(handler));
+
             Entries.Add(new Entry(type, handler));
             return this;
         }

@@ -10,6 +10,8 @@ namespace RoyalMessenger
         /// <returns>The item being referenced, or <see langword="null" /> if it has already been garbage collected.</returns>
         public static T GetOrNull<T>(this WeakReference<T> reference) where T : class
         {
+            if (reference is null) throw new ArgumentNullException(nameof(reference));
+
             if (reference.TryGetTarget(out var target)) return target;
             return null;
         }

@@ -11,6 +11,10 @@ namespace RoyalMessenger.ExceptionHandlers
 
         public Task HandleAsync(Exception exception, object message, MessageHandler handler)
         {
+            if (exception is null) throw new ArgumentNullException(nameof(exception));
+            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (handler is null) throw new ArgumentNullException(nameof(handler));
+
             Log.Info($"Swallowed {exception}");
             return Task.CompletedTask;
         }

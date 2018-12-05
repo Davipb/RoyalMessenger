@@ -12,6 +12,11 @@ namespace RoyalMessenger.MessageDiscriminators
     public class AssignableTypeMessageDiscriminator : IMessageDiscriminator
     {
         public bool IsCompatible(Type messageType, Type registeredType)
-            => registeredType.GetTypeInfo().IsAssignableFrom(messageType.GetTypeInfo());
+        {
+            if (messageType is null) throw new ArgumentNullException(nameof(messageType));
+            if (registeredType is null) throw new ArgumentNullException(nameof(registeredType));
+
+            return registeredType.GetTypeInfo().IsAssignableFrom(messageType.GetTypeInfo());
+        }
     }
 }

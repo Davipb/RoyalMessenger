@@ -1,4 +1,4 @@
-using NullGuard;
+using RoyalMessenger.Contracts;
 using RoyalMessenger.Executors;
 using RoyalMessenger.Logging;
 using RoyalMessenger.MessageDiscriminators;
@@ -28,9 +28,9 @@ namespace RoyalMessenger
 
             public Registration(StandardMessageBroker broker, Type messageType, MessageHandler messageHandler)
             {
-                this.broker = broker;
-                MessageType = messageType;
-                MessageHandler = messageHandler;
+                this.broker = broker ?? throw new ArgumentNullException(nameof(broker));
+                MessageType = messageType ?? throw new ArgumentNullException(nameof(messageType));
+                MessageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
             }
 
             /// <summary>Unregisters this registration from the broker that created it.</summary>
@@ -57,8 +57,8 @@ namespace RoyalMessenger
         /// If left <see langword="null"/>, it defaults to <see cref="AssignableTypeMessageDiscriminator"/>.
         /// </param>
         public StandardMessageBroker(
-            [AllowNull] IExecutor executor = null,
-            [AllowNull] IMessageDiscriminator discriminator = null)
+            [Nullable] IExecutor executor = null,
+            [Nullable] IMessageDiscriminator discriminator = null)
         {
             this.executor = executor ?? new SequentialExecutor();
             this.discriminator = discriminator ?? new AssignableTypeMessageDiscriminator();
@@ -66,6 +66,9 @@ namespace RoyalMessenger
 
         public async Task<IAsyncDisposable> RegisterAsync(Type messageType, MessageHandler messageHandler)
         {
+            if (messageType is null) throw new ArgumentNullException(nameof(messageType));
+            if (messageHandler is null) throw new ArgumentNullException(nameof(messageHandler));
+
             Log.Trace($"Registering a new handler for {messageType}");
             var registration = new Registration(this, messageType, messageHandler);
             await items.AddAsync(messageType, registration).ConfigureAwait(false);
@@ -76,12 +79,16 @@ namespace RoyalMessenger
         /// <param name="registration">The registration to unregister.</param>
         private Task UnregisterAsync(Registration registration)
         {
+            if (registration is null) throw new ArgumentNullException(nameof(registration));
+
             Log.Trace($"Manually unregistering {registration}");
             return items.RemoveAsync(registration.MessageType, registration);
         }
 
         public async Task SendAsync(object message)
         {
+            if (message is null) throw new ArgumentNullException(nameof(message));
+
             var registrations = await items
                 .GetMatchingAsync(k => discriminator.IsCompatible(message.GetType(), k))
                 .ConfigureAwait(false);
