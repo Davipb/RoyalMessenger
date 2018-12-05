@@ -47,6 +47,6 @@ namespace RoyalMessenger.Logging
             e ?? throw new ArgumentNullException(nameof(e))
         );
 
-        public Logger(Type type) => Type = type ?? throw new ArgumentNullException(nameof(type));
+        internal Logger(Type type) => Type = type ?? throw new ArgumentNullException(nameof(type));
     }
 }

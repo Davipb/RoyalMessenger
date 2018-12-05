@@ -31,6 +31,13 @@ namespace RoyalMessenger.Executors
             ExceptionHandler = exceptionHandler ?? new RethrowExceptionHandler();
         }
 
+        /// <summary>
+        /// Does the actual execution of the handlers.
+        /// If the executor is fire-and-forget, this method will be called in a separate task from the calling code.
+        /// Otherwise, it will be called as normal.
+        /// </summary>
+        /// <param name="message">The message that was sent.</param>
+        /// <param name="handlers">The handlers that must receive the message.</param>
         protected override async Task DoExecutionAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));

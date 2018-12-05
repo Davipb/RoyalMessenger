@@ -25,6 +25,9 @@ namespace RoyalMessenger.Executors
         /// <param name="isFireAndForget">Weather this executor is fire-and-forget or not.</param>
         protected FireAndForgetExecutor(bool isFireAndForget) => IsFireAndForget = isFireAndForget;
 
+        /// <summary>Executes a set of handlers with a specified message.</summary>
+        /// <param name="message">The message that was received.</param>
+        /// <param name="handlers">The handlers that should be executed with the received message.</param>
         public Task ExecuteAsync(object message, IReadOnlyCollection<MessageHandler> handlers)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
